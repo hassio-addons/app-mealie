@@ -18,27 +18,6 @@
          }
        }
  
---- a/frontend/app/components/Domain/User/UserAvatar.vue
-+++ b/frontend/app/components/Domain/User/UserAvatar.vue
-@@ -59,6 +59,10 @@
- 
- const error = ref(false);
- 
-+// An <img> src is fetched by the browser itself, so the Ingress sub path has
-+// to be on it already; no interceptor gets a chance to correct it.
-+const subPath = useRuntimeConfig().public.SUB_PATH || "";
-+
- const auth = useMealieAuth();
- const { store: users } = useUserStore();
- const user = computed(() => {
-@@ -69,6 +73,6 @@
-   // Note: auth.user is a ref now
-   const authUser = auth.user.value;
-   const key = authUser?.cacheKey ?? "";
--  return `/api/media/users/${props.userId}/profile.webp?cacheKey=${key}`;
-+  return `${subPath}/api/media/users/${props.userId}/profile.webp?cacheKey=${key}`;
- });
- </script>
 --- a/frontend/app/components/Domain/Group/GroupExportData.vue
 +++ b/frontend/app/components/Domain/Group/GroupExportData.vue
 @@ -14,7 +14,7 @@
@@ -61,3 +40,37 @@
  const headers = [
    { title: i18n.t("export.export"), value: "name" },
    { title: i18n.t("export.file-name"), value: "filename" },
+--- a/frontend/app/components/Domain/Recipe/RecipeDataTable.vue
++++ b/frontend/app/components/Domain/Recipe/RecipeDataTable.vue
+@@ -14,7 +14,7 @@
+   >
+     <template #[`item.name`]="{ item }">
+       <a
+-        :href="`/g/${groupSlug}/r/${item.slug}`"
++        :href="`${subPath}/g/${groupSlug}/r/${item.slug}`"
+         style="color: inherit; text-decoration: inherit; "
+         @click="$emit('click')"
+       >{{ item.name }}</a>
+@@ -71,6 +71,10 @@
+ import type { UserSummary } from "~/lib/api/types/user";
+ import type { RecipeTag } from "~/lib/api/types/household";
+ 
++// A plain anchor rather than a RouterLink, so the Ingress sub path has to be
++// put on by hand; the router never sees it.
++const subPath = useRuntimeConfig().public.SUB_PATH || "";
++
+ interface ShowHeaders {
+   id: boolean;
+   owner: boolean;
+--- a/frontend/app/composables/recipes/use-recipe-ingredients.ts
++++ b/frontend/app/composables/recipes/use-recipe-ingredients.ts
+@@ -45,7 +45,8 @@
+     return undefined;
+   }
+ 
+-  return `<a href="/g/${groupSlug}/r/${recipe.slug}" target="_blank">${recipe.name}</a>`;
++  const subPath = useRuntimeConfig().public.SUB_PATH || "";
++  return `<a href="${subPath}/g/${groupSlug}/r/${recipe.slug}" target="_blank">${recipe.name}</a>`;
+ }
+ 
+ type ParsedIngredientText = {
