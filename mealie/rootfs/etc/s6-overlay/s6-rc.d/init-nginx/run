@@ -1,0 +1,29 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Community App: Mealie
+# Configures NGINX for use with Mealie
+# ==============================================================================
+
+# Generate Ingress configuration
+bashio::var.json \
+    interface "$(bashio::app.ip_address)" \
+    port "^$(bashio::app.ingress_port)" \
+    | tempio \
+        -template /etc/nginx/templates/ingress.gtpl \
+        -out /etc/nginx/servers/ingress.conf
+
+# The direct server is always generated, even when the port is not published to
+# the host. Home Assistant's Mealie integration needs an address and an API
+# token, and an Ingress path is neither stable nor usable for that, so it talks
+# to this app over the internal network instead.
+bashio::config.require.ssl
+
+bashio::var.json \
+    certfile "$(bashio::config 'certfile')" \
+    keyfile "$(bashio::config 'keyfile')" \
+    port "^9000" \
+    ssl "^$(bashio::config 'ssl')" \
+    | tempio \
+        -template /etc/nginx/templates/direct.gtpl \
+        -out /etc/nginx/servers/direct.conf

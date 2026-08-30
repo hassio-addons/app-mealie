@@ -1,0 +1,63 @@
+--- a/frontend/app/plugins/axios.ts
++++ b/frontend/app/plugins/axios.ts
+@@ -51,9 +51,15 @@
+           // Disable beforeunload warnings to prevent "Are you sure you want to leave?" popups
+           window.onbeforeunload = null;
+ 
+-          const target = window.location.pathname + window.location.search;
++          // A full page load, so the Ingress sub path has to be spelled out.
++          // The redirect target must not carry it, or logging back in would
++          // prepend it a second time.
++          const subPath = useRuntimeConfig().public.SUB_PATH || "";
++          const path = window.location.pathname;
++          const relativePath = subPath && path.startsWith(subPath) ? path.slice(subPath.length) || "/" : path;
++          const target = relativePath + window.location.search;
+           const redirect = isSafeRedirectTarget(target) && target !== "/login" ? `?redirect=${encodeURIComponent(target)}` : "";
+-          window.location.href = `/login${redirect}`;
++          window.location.href = `${subPath}/login${redirect}`;
+         }
+       }
+ 
+--- a/frontend/app/components/Domain/User/UserAvatar.vue
++++ b/frontend/app/components/Domain/User/UserAvatar.vue
+@@ -59,6 +59,10 @@
+ 
+ const error = ref(false);
+ 
++// An <img> src is fetched by the browser itself, so the Ingress sub path has
++// to be on it already; no interceptor gets a chance to correct it.
++const subPath = useRuntimeConfig().public.SUB_PATH || "";
++
+ const auth = useMealieAuth();
+ const { store: users } = useUserStore();
+ const user = computed(() => {
+@@ -69,6 +73,6 @@
+   // Note: auth.user is a ref now
+   const authUser = auth.user.value;
+   const key = authUser?.cacheKey ?? "";
+-  return `/api/media/users/${props.userId}/profile.webp?cacheKey=${key}`;
++  return `${subPath}/api/media/users/${props.userId}/profile.webp?cacheKey=${key}`;
+ });
+ </script>
+--- a/frontend/app/components/Domain/Group/GroupExportData.vue
++++ b/frontend/app/components/Domain/Group/GroupExportData.vue
+@@ -14,7 +14,7 @@
+       <BaseButton
+         download
+         size="small"
+-        :download-url="`/api/recipes/bulk-actions/export/${item.id}/download`"
++        :download-url="`${subPath}/api/recipes/bulk-actions/export/${item.id}/download`"
+       />
+     </template>
+   </v-data-table>
+@@ -30,6 +30,10 @@
+ 
+ const i18n = useI18n();
+ 
++// Followed by the browser as a plain link, so it needs the Ingress sub path
++// baked in rather than added by an interceptor.
++const subPath = useRuntimeConfig().public.SUB_PATH || "";
++
+ const headers = [
+   { title: i18n.t("export.export"), value: "name" },
+   { title: i18n.t("export.file-name"), value: "filename" },

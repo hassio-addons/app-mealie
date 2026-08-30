@@ -1,0 +1,42 @@
+--- /dev/null
++++ b/frontend/app/plugins/01.ingress.client.ts
+@@ -0,0 +1,39 @@
++// Home Assistant Ingress serves Mealie from a path it only settles on at
++// request time, and NGINX writes that path into SUB_PATH on the way past.
++//
++// Most of the app reaches the API through the axios instance in plugins/axios,
++// but a handful of places use a bare axios or a bare fetch and aim at the site
++// root: the app-info and theme plugins among them. Under Ingress the site root
++// is Home Assistant rather than Mealie, so those requests never arrive.
++//
++// Redirecting both transports in one place is what keeps this to a single file
++// instead of a patch against every call site, and means a call site added
++// upstream later is carried along rather than quietly breaking. The numeric
++// filename and the "pre" enforcement are what put this ahead of the plugins
++// that depend on it.
++export default defineNuxtPlugin({
++  name: "ingress-sub-path",
++  enforce: "pre",
++  setup() {
++    const subPath = useRuntimeConfig().public.SUB_PATH || "";
++    if (!subPath) {
++      return;
++    }
++
++    // Anything already carrying the sub path is left alone, so this stays
++    // correct even where a call site has been taught to prefix for itself.
++    const prefixed = (url: string) =>
++      url.startsWith("/api/") && !url.startsWith(`${subPath}/`) ? `${subPath}${url}` : url;
++
++    const originalFetch = globalThis.fetch;
++    globalThis.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
++      return originalFetch(typeof input === "string" ? prefixed(input) : input, init);
++    };
++
++    const originalOpen = XMLHttpRequest.prototype.open;
++    XMLHttpRequest.prototype.open = function (this: XMLHttpRequest, method: string, url: string | URL, ...rest: unknown[]) {
++      const target = typeof url === "string" ? prefixed(url) : url;
++      return (originalOpen as (...args: unknown[]) => void).call(this, method, target, ...rest);
++    };
++  },
++});

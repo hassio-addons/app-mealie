@@ -1,0 +1,13 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Community App: Mealie
+# Runs the NGINX daemon
+# ==============================================================================
+
+# Wait for Mealie to become available. The first start of a new version runs
+# the database migrations before it begins listening.
+bashio::net.wait_for 49000 127.0.0.1 900
+
+bashio::log.info "Starting NGINX..."
+exec nginx

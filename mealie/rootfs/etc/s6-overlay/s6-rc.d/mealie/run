@@ -1,0 +1,60 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Community App: Mealie
+# Runs the Mealie server
+# ==============================================================================
+declare log_level
+
+export PRODUCTION="true"
+export TESTING="false"
+
+# Everything Mealie writes, including the SQLite database, the search index
+# and uploaded recipe images, lives here.
+export DATA_DIR="/data/mealie"
+export NLTK_DATA="/usr/share/nltk_data"
+
+# Only ever listen on loopback; NGINX is what faces Ingress and the network.
+export API_HOST="127.0.0.1"
+export API_PORT="49000"
+
+# Mealie has fewer levels of its own, and wants them lowercase.
+log_level="info"
+case "$(bashio::string.lower "$(bashio::config 'log_level' 'info')")" in
+    trace|debug)        log_level="debug" ;;
+    info|notice)        log_level="info" ;;
+    warning)            log_level="warning" ;;
+    error)              log_level="error" ;;
+    fatal)              log_level="critical" ;;
+esac
+export LOG_LEVEL="${log_level}"
+
+# Used for the links in notification emails and for the OpenID Connect
+# callback. Mealie has no way to work this out on its own.
+if bashio::config.has_value 'base_url'; then
+    BASE_URL=$(bashio::config 'base_url')
+    export BASE_URL
+fi
+
+ALLOW_SIGNUP=$(bashio::config 'allow_signup' 'false')
+export ALLOW_SIGNUP
+
+# Without these, invitations and password resets have no way out of the house.
+if bashio::config.has_value 'smtp_host'; then
+    SMTP_HOST=$(bashio::config 'smtp_host')
+    SMTP_PORT=$(bashio::config 'smtp_port' '587')
+    SMTP_FROM_NAME=$(bashio::config 'smtp_from_name' 'Mealie')
+    SMTP_FROM_EMAIL=$(bashio::config 'smtp_from_email')
+    SMTP_AUTH_STRATEGY=$(bashio::config 'smtp_auth_strategy' 'TLS')
+    export SMTP_HOST SMTP_PORT SMTP_FROM_NAME SMTP_FROM_EMAIL SMTP_AUTH_STRATEGY
+
+    if bashio::config.has_value 'smtp_user'; then
+        SMTP_USER=$(bashio::config 'smtp_user')
+        SMTP_PASSWORD=$(bashio::config 'smtp_password')
+        export SMTP_USER SMTP_PASSWORD
+    fi
+fi
+
+bashio::log.info "Starting Mealie..."
+
+exec mealie
