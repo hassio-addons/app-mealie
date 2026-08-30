@@ -1,19 +1,15 @@
 --- /dev/null
 +++ b/frontend/app/plugins/01.ingress.client.ts
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,61 @@
 +// Home Assistant Ingress serves Mealie from a path it only settles on at
 +// request time, and NGINX writes that path into SUB_PATH on the way past.
 +//
-+// Most of the app reaches the API through the axios instance in plugins/axios,
-+// but a handful of places use a bare axios or a bare fetch and aim at the site
-+// root: the app-info and theme plugins among them. Under Ingress the site root
-+// is Home Assistant rather than Mealie, so those requests never arrive.
-+//
-+// Redirecting both transports in one place is what keeps this to a single file
-+// instead of a patch against every call site, and means a call site added
-+// upstream later is carried along rather than quietly breaking. The numeric
-+// filename and the "pre" enforcement are what put this ahead of the plugins
-+// that depend on it.
++// Mealie addresses everything from the site root. Under Ingress the site root
++// belongs to Home Assistant, not to Mealie, so those requests never arrive.
++// Correcting them in one place is what keeps this to a single file rather than
++// a patch against every call site, and means a call site added upstream later
++// is carried along instead of quietly breaking. The numeric filename and the
++// "pre" enforcement are what put this ahead of the plugins that depend on it.
 +export default defineNuxtPlugin({
 +  name: "ingress-sub-path",
 +  enforce: "pre",
@@ -23,10 +19,14 @@
 +      return;
 +    }
 +
-+    // Anything already carrying the sub path is left alone, so this stays
-+    // correct even where a call site has been taught to prefix for itself.
++    // This app owns nothing at the site root, so every root-relative address
++    // it produces belongs under the sub path. A protocol relative URL is
++    // somebody else's host and is left alone, as is anything that already
++    // carries the prefix.
 +    const prefixed = (url: string) =>
-+      url.startsWith("/api/") && !url.startsWith(`${subPath}/`) ? `${subPath}${url}` : url;
++      url.startsWith("/") && !url.startsWith("//") && !url.startsWith(`${subPath}/`)
++        ? `${subPath}${url}`
++        : url;
 +
 +    const originalFetch = globalThis.fetch;
 +    globalThis.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
@@ -37,6 +37,28 @@
 +    XMLHttpRequest.prototype.open = function (this: XMLHttpRequest, method: string, url: string | URL, ...rest: unknown[]) {
 +      const target = typeof url === "string" ? prefixed(url) : url;
 +      return (originalOpen as (...args: unknown[]) => void).call(this, method, target, ...rest);
++    };
++
++    // Images are the case no request interceptor can reach: the browser starts
++    // fetching the instant the address is assigned, so by the time anything
++    // observing the document could correct it the 404 has already happened.
++    // The pages are full of hardcoded artwork, every "/svgs/*.svg" behind a
++    // page title among them, so both ways of assigning it are covered here.
++    const descriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
++    if (descriptor?.set) {
++      const originalSet = descriptor.set;
++      Object.defineProperty(HTMLImageElement.prototype, "src", {
++        ...descriptor,
++        set(this: HTMLImageElement, value: string) {
++          originalSet.call(this, typeof value === "string" ? prefixed(value) : value);
++        },
++      });
++    }
++
++    const originalSetAttribute = HTMLImageElement.prototype.setAttribute;
++    HTMLImageElement.prototype.setAttribute = function (this: HTMLImageElement, name: string, value: string) {
++      const target = name === "src" && typeof value === "string" ? prefixed(value) : value;
++      return originalSetAttribute.call(this, name, target);
 +    };
 +  },
 +});
