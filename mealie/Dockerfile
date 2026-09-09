@@ -2,7 +2,7 @@ ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.4.0
 ARG MEALIE_VERSION="3.24.0"
 
 # hadolint ignore=DL3006
-FROM ghcr.io/astral-sh/uv:0.12.11 AS uv
+FROM ghcr.io/astral-sh/uv:0.12.12 AS uv
 
 # Mealie's frontend is a Nuxt application that is generated up front and then
 # packaged into the Python distribution, so it has to be built before the
