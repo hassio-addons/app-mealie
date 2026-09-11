@@ -20,6 +20,8 @@ ports:
   9000/tcp: null
 ports_description:
   9000/tcp: Web interface & API (not required for Ingress)
+discovery:
+  - mealie
 options:
   allow_signup: false
   ssl: false

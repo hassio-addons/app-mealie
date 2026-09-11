@@ -14,9 +14,9 @@ bashio::var.json \
         -out /etc/nginx/servers/ingress.conf
 
 # The direct server is always generated, even when the port is not published to
-# the host. Home Assistant's Mealie integration needs an address and an API
-# token, and an Ingress path is neither stable nor usable for that, so it talks
-# to this app over the internal network instead.
+# the host, so other apps on the internal network can reach this one on it. The
+# Home Assistant integration has a plain HTTP address of its own, served from
+# /etc/nginx/servers/internal.conf, which the "ssl" option leaves alone.
 bashio::config.require.ssl
 
 bashio::var.json \
