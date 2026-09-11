@@ -1,0 +1,27 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Community App: Mealie
+# Sends discovery information to Home Assistant
+# ==============================================================================
+declare config
+
+# Wait for NGINX to become available. It only starts listening once Mealie
+# does, and the first start of a new version runs the database migrations
+# before that.
+bashio::net.wait_for 9001 127.0.0.1 900
+
+# The integration glues these together as "host:port" and expects a URL to
+# come out, so the scheme travels with the host. Plain HTTP, whatever the
+# "ssl" option says: that option never applies to this port.
+config=$(\
+    bashio::var.json \
+        host "http://$(hostname)" \
+        port "^9001" \
+)
+
+if bashio::discovery "mealie" "${config}" > /dev/null; then
+    bashio::log.info "Successfully sent discovery information to Home Assistant."
+else
+    bashio::log.error "Discovery message to Home Assistant failed!"
+fi
