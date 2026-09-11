@@ -1,5 +1,5 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.4.0
-ARG MEALIE_VERSION="3.24.0"
+ARG MEALIE_VERSION="3.25.1"
 
 # hadolint ignore=DL3006
 FROM ghcr.io/astral-sh/uv:0.12.13 AS uv
