@@ -1,23 +1,23 @@
 --- a/frontend/app/plugins/axios.ts
 +++ b/frontend/app/plugins/axios.ts
-@@ -51,9 +51,15 @@
-           // Disable beforeunload warnings to prevent "Are you sure you want to leave?" popups
-           window.onbeforeunload = null;
+@@ -45,9 +45,15 @@
+     // Disable beforeunload warnings to prevent "Are you sure you want to leave?" popups
+     window.onbeforeunload = null;
  
--          const target = window.location.pathname + window.location.search;
-+          // A full page load, so the Ingress sub path has to be spelled out.
-+          // The redirect target must not carry it, or logging back in would
-+          // prepend it a second time.
-+          const subPath = useRuntimeConfig().public.SUB_PATH || "";
-+          const path = window.location.pathname;
-+          const relativePath = subPath && path.startsWith(subPath) ? path.slice(subPath.length) || "/" : path;
-+          const target = relativePath + window.location.search;
-           const redirect = isSafeRedirectTarget(target) && target !== "/login" ? `?redirect=${encodeURIComponent(target)}` : "";
--          window.location.href = `/login${redirect}`;
-+          window.location.href = `${subPath}/login${redirect}`;
-         }
-       }
+-    const target = window.location.pathname + window.location.search;
++    // A full page load, so the Ingress sub path has to be spelled out.
++    // The redirect target must not carry it, or logging back in would
++    // prepend it a second time.
++    const subPath = useRuntimeConfig().public.SUB_PATH || "";
++    const path = window.location.pathname;
++    const relativePath = subPath && path.startsWith(subPath) ? path.slice(subPath.length) || "/" : path;
++    const target = relativePath + window.location.search;
+     const redirect = isSafeRedirectTarget(target) && target !== "/login" ? `?redirect=${encodeURIComponent(target)}` : "";
+-    window.location.href = `/login${redirect}`;
++    window.location.href = `${subPath}/login${redirect}`;
+   }
  
+   // Add response interceptor
 --- a/frontend/app/components/Domain/Group/GroupExportData.vue
 +++ b/frontend/app/components/Domain/Group/GroupExportData.vue
 @@ -14,7 +14,7 @@
