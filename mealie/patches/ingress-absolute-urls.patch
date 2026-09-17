@@ -68,9 +68,9 @@
      return undefined;
    }
  
--  return `<a href="/g/${groupSlug}/r/${recipe.slug}" target="_blank">${recipe.name}</a>`;
+-  return `<a href="/g/${groupSlug}/r/${recipe.slug}">${recipe.name}</a>`;
 +  const subPath = useRuntimeConfig().public.SUB_PATH || "";
-+  return `<a href="${subPath}/g/${groupSlug}/r/${recipe.slug}" target="_blank">${recipe.name}</a>`;
++  return `<a href="${subPath}/g/${groupSlug}/r/${recipe.slug}">${recipe.name}</a>`;
  }
  
  type ParsedIngredientText = {
