@@ -55,6 +55,12 @@ if bashio::config.has_value 'smtp_host'; then
     fi
 fi
 
+# Set the token lifetime time env if provided in the configuration
+if bashio::config.has_value 'token_time'; then
+    TOKEN_TIME=$(bashio::config 'token_time')
+    export TOKEN_TIME
+fi
+
 bashio::log.info "Starting Mealie..."
 
 exec mealie
