@@ -63,6 +63,9 @@ configuration:
     description: >-
       The private key file to use for SSL. The file must be stored in the
       `/ssl/` directory.
+  token_time:
+    name: Token time
+    description: The lifetime of the login session in hours. Defaults to 48.
 network:
   9000/tcp: >-
     Web interface and API. Not required for Ingress. Expose this port when

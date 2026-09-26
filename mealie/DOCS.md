@@ -222,6 +222,10 @@ The private key file to use for SSL.
 
 **Note**: _The file MUST be stored in `/ssl/`, which is the default_
 
+### Option: `token_time`
+
+The time in hours a login session lasts. Must be <= `9600` (400 days, in hours). Defaults to `48`.
+
 ## Direct access
 
 By default this app is only reachable through Home Assistant's Ingress, in a

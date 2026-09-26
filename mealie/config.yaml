@@ -41,3 +41,4 @@ schema:
   ssl: bool
   certfile: str
   keyfile: str
+  token_time: int
