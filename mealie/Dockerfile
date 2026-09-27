@@ -1,5 +1,5 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.4.0
-ARG MEALIE_VERSION="3.27.0"
+ARG MEALIE_VERSION="3.28.0"
 
 # hadolint ignore=DL3006
 FROM ghcr.io/astral-sh/uv:0.12.19 AS uv
@@ -83,7 +83,7 @@ COPY --from=frontend /usr/src/mealie/frontend/dist /usr/src/mealie/mealie/fronte
 # writes the release tag over it when they package, and so does this. Without
 # it the about page and the Home Assistant integration report "develop".
 ARG MEALIE_VERSION
-ARG PYTHON_VERSION="3.12"
+ARG PYTHON_VERSION="3.14"
 # hadolint ignore=DL3003,DL3008
 RUN \
     apt-get update \
@@ -149,7 +149,7 @@ RUN \
         ffmpeg=7:7.1.5-0+deb13u1 \
         libldap-common=2.6.10+dfsg-1 \
         libpq5=17.11-0+deb13u1 \
-        nginx=1.26.3-3+deb13u7 \
+        nginx=1.26.3-3+deb13u9 \
     \
     && rm -f -r /etc/nginx \
     \
