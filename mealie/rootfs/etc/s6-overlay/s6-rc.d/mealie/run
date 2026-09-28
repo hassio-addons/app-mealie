@@ -5,6 +5,18 @@
 # Runs the Mealie server
 # ==============================================================================
 declare log_level
+declare name
+declare value
+
+# Anything from the env_vars option goes in first, so that the settings this
+# app depends on, set below, win when the two disagree. Only the names are
+# logged, as these are likely to carry secrets, such as an LDAP bind password.
+for var in $(bashio::config 'env_vars|keys'); do
+    name=$(bashio::config "env_vars[${var}].name")
+    value=$(bashio::config "env_vars[${var}].value")
+    bashio::log.info "Setting ${name} from the env_vars option"
+    export "${name}=${value}"
+done
 
 export PRODUCTION="true"
 export TESTING="false"
