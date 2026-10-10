@@ -15,7 +15,7 @@ FROM ghcr.io/astral-sh/uv:0.13.0 AS uv
 # hadolint ignore=DL3029
 FROM --platform=${BUILDPLATFORM} node:24 AS frontend
 ARG MEALIE_VERSION
-ARG PNPM_VERSION="12.10.1"
+ARG PNPM_VERSION="12.11.2"
 
 ENV \
     NUXT_TELEMETRY_DISABLED=1
