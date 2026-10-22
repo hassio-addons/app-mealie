@@ -92,7 +92,7 @@ RUN \
         build-essential=12.12 \
         libldap2-dev=2.6.10+dfsg-1 \
         libsasl2-dev=2.1.28+dfsg1-9 \
-        libssl-dev=3.5.7-1~deb13u2 \
+        libssl-dev=3.5.7-1~deb13u3 \
         unzip=6.0-29+deb13u1 \
     \
     && uv python install "${PYTHON_VERSION}" \
