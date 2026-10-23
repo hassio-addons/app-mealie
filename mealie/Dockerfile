@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.5.0
+ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.5.1
 ARG MEALIE_VERSION="3.28.0"
 
 # hadolint ignore=DL3006
@@ -92,7 +92,7 @@ RUN \
         build-essential=12.12 \
         libldap2-dev=2.6.10+dfsg-1 \
         libsasl2-dev=2.1.28+dfsg1-9 \
-        libssl-dev=3.5.7-1~deb13u2 \
+        libssl-dev=3.5.7-1~deb13u3 \
         unzip=6.0-29+deb13u1 \
     \
     && uv python install "${PYTHON_VERSION}" \
@@ -149,7 +149,7 @@ RUN \
         ffmpeg=7:7.1.5-0+deb13u1 \
         libldap-common=2.6.10+dfsg-1 \
         libpq5=17.11-0+deb13u1 \
-        nginx=1.26.3-3+deb13u9 \
+        nginx=1.26.3-3+deb13u10 \
     \
     && rm -f -r /etc/nginx \
     \
