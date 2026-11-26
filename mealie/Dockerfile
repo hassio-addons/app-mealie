@@ -148,7 +148,7 @@ RUN \
     && apt-get install -y --no-install-recommends \
         ffmpeg=7:7.1.5-0+deb13u1 \
         libldap-common=2.6.10+dfsg-1 \
-        libpq5=17.11-0+deb13u1 \
+        libpq5=17.12-0+deb13u1 \
         nginx=1.26.3-3+deb13u10 \
     \
     && rm -f -r /etc/nginx \
