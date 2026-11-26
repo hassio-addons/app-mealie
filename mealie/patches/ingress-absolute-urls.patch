@@ -1,6 +1,6 @@
 --- a/frontend/app/plugins/axios.ts
 +++ b/frontend/app/plugins/axios.ts
-@@ -45,9 +45,15 @@
+@@ -97,9 +97,15 @@
      // Disable beforeunload warnings to prevent "Are you sure you want to leave?" popups
      window.onbeforeunload = null;
  
@@ -53,7 +53,7 @@
        >{{ item.name }}</a>
 @@ -71,6 +71,10 @@
  import type { UserSummary } from "~/lib/api/types/user";
- import type { RecipeTag } from "~/lib/api/types/household";
+ import type { TagOut } from "~/lib/api/types/household";
  
 +// A plain anchor rather than a RouterLink, so the Ingress sub path has to be
 +// put on by hand; the router never sees it.
@@ -64,13 +64,13 @@
    owner: boolean;
 --- a/frontend/app/composables/recipes/use-recipe-ingredients.ts
 +++ b/frontend/app/composables/recipes/use-recipe-ingredients.ts
-@@ -45,7 +45,8 @@
+@@ -37,7 +37,8 @@
      return undefined;
    }
  
--  return `<a href="/g/${groupSlug}/r/${recipe.slug}">${recipe.name}</a>`;
+-  return `<a href="/g/${encodeURIComponent(groupSlug)}/r/${encodeURIComponent(recipe.slug)}">${recipe.name}</a>`;
 +  const subPath = useRuntimeConfig().public.SUB_PATH || "";
-+  return `<a href="${subPath}/g/${groupSlug}/r/${recipe.slug}">${recipe.name}</a>`;
++  return `<a href="${subPath}/g/${encodeURIComponent(groupSlug)}/r/${encodeURIComponent(recipe.slug)}">${recipe.name}</a>`;
  }
  
  type ParsedIngredientText = {
