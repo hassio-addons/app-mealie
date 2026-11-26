@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.5.2
+ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:9.6.0
 ARG MEALIE_VERSION="3.30.0"
 
 # hadolint ignore=DL3006
